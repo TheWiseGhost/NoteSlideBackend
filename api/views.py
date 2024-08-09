@@ -111,7 +111,7 @@ def sign_up(request):
         
         # Send verification email
         send_verification_email("user", email, token)
-        
+        print('User signed up')
         return JsonResponse({'message': 'User registered successfully. Please check your email to verify your account.'}, status=201)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
@@ -148,6 +148,7 @@ def login(request):
                 'following': list(user.get('following')) if 'following' in user else [],
                 'followers': user.get('followers'),
             }
+            print('User logged in up')
             return JsonResponse({'user': formatted_user}, status=200)
         else:
             return JsonResponse({'error': 'Invalid email or password'}, status=401)
@@ -179,6 +180,7 @@ def verify_email(request, token):
         unverified_users_collection.delete_many({'email': user['email']})
         unverified_users_collection.delete_many({'name': user['name']})
         
+        print('User verified')
         return JsonResponse({'message': 'Email verified successfully. You can now log in.'}, status=200)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
@@ -226,7 +228,8 @@ def business_sign_up(request):
         }
         unverified_users_collection.insert_one(new_user)
         send_verification_email("business", email, token)
-        
+
+        print('Business signed up')
         return JsonResponse({'message': 'User registered successfully. Please check your email to verify your account.'}, status=201)
 
     else:
@@ -271,6 +274,8 @@ def business_login(request):
                 'domain': user.get('domain'),
                 'description': user.get('description')
             }
+
+            print('Business logged in')
             return JsonResponse({'user': formatted_user}, status=200)
         else:
             return JsonResponse({'error': 'Invalid email or password'}, status=401)
@@ -300,7 +305,8 @@ def verify_business(request, token):
         
         # Remove the user from the unverified collection
         unverified_users_collection.delete_many({'email': user['email']})
-        
+
+        print('Business verified')
         return JsonResponse({'message': 'Business Email verified successfully. You can now log in.'}, status=200)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
@@ -494,6 +500,7 @@ def get_note_details(request, note_id):
             else:
                 note['liked'] = False
 
+            print("Note sent")
             return JsonResponse(note, safe=False)
         else:
             return JsonResponse({'error': 'Note not found'}, status=404)
@@ -581,7 +588,8 @@ def upload_note(request):
             collection = db['Notes']
             collection.insert_one({'title': title, 'short_title': short_title, 'interest': interest, 'elo': 1, 'likes': 0, 'views': 0, 'username': user, 'user_id': user_id, 's3_path': s3_url, 'description': description, 'created_at': formatted_date})
 
-            return Response({'url': s3_url}, status=status.HTTP_201_CREATED)
+            print("Note uploaded")
+            return Response({'success': "success"}, status=status.HTTP_201_CREATED)
         except ClientError as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -777,6 +785,7 @@ def random_ad(request, note_id):
         user = user_collection.find_one({'_id': ObjectId((random_ad['user_id']))})
         random_ad['domain'] = user['domain']
 
+        print("Ad sent")
         return JsonResponse(dumps(random_ad), safe=False)
         
     except Exception as e:
@@ -841,7 +850,8 @@ def upload_ad(request):
             collection = db['Ads']
             collection.insert_one({'title': title, 'interest': interest, 'campaign_id': campaign_id, 'views': 0, 'clicks': 0, 'user_id': user_id, 'spend': Decimal128("0.00"), 'budget': Decimal128(budget), 'budget_manager': manager, 's3_path': s3_url})
 
-            return Response({'url': s3_url}, status=status.HTTP_201_CREATED)
+            print("Ad uploaded")
+            return Response({'success': 'success'}, status=status.HTTP_201_CREATED)
         
         except ClientError as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
