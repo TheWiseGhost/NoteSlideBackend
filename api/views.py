@@ -1,8 +1,7 @@
-from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views import View
-from pymongo import MongoClient, errors
+from pymongo import MongoClient
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -10,8 +9,7 @@ from django.conf import settings
 import boto3
 from botocore.exceptions import ClientError
 from bson import ObjectId
-from bson.decimal128 import Decimal128, create_decimal128_context
-import decimal
+from bson.decimal128 import Decimal128
 from bson.json_util import dumps
 import random
 import traceback
