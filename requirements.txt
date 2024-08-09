@@ -626,6 +626,9 @@ requests-toolbelt==1.0.0 ; python_version >= "3.11" and python_version < "4.0" \
 requests==2.32.3 ; python_version >= "3.11" and python_version < "4.0" \
     --hash=sha256:55365417734eb18255590a9ff9eb97e9e1da868d4ccd6402399eaf68af20a760 \
     --hash=sha256:70761cfe03c773ceb22aa2f671b4757976145175cdfca038c02654d061d6dcc6
+rest-framework-simplejwt==0.0.2 ; python_version >= "3.11" and python_version < "4.0" \
+    --hash=sha256:035187ce5380e18e8b966610a89b6460fb4b73cd179979343888fb190328125d \
+    --hash=sha256:620c56826ff4791c4aaa730ec52aed1f4c74b9c20ea15b9fc1a39bdf99a29a30
 s3transfer==0.10.2 ; python_version >= "3.11" and python_version < "4.0" \
     --hash=sha256:0711534e9356d3cc692fdde846b4a1e4b0cb6519971860796e6bc4c7aea00ef6 \
     --hash=sha256:eca1c20de70a39daee580aef4986996620f365c4e0fda6a86100231d62f1bf69
