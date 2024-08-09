@@ -18,6 +18,8 @@ staticfiles/
 # Node
 node_modules/
 
+venv/
+
 # macOS
 .DS_Store
 
