@@ -367,7 +367,10 @@ def note_view(request):
         user = user_collection.find_one({"_id": ObjectId(user_id)})
 
         if not user:
-            return JsonResponse({"error": "User not found"}, status=404)
+            sampled_notes = random.sample(notes, 50)
+            for note in sampled_notes:
+                note['_id'] = str(note['_id']) 
+            return JsonResponse(sampled_notes, safe=False)
 
         user_interests = user['interest']
         total_elo = sum(user_interests.values())
