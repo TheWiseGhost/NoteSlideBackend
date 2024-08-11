@@ -366,7 +366,8 @@ def note_view(request):
         notes = list(notes_collection.find({}))
 
         if not user_id:
-            sampled_notes = random.sample(notes, 50)
+            sample_size = len(notes) if len(notes) < 52 else 52
+            sampled_notes = random.sample(notes, sample_size)
             for note in sampled_notes:
                 note['_id'] = str(note['_id']) 
             return JsonResponse(sampled_notes, safe=False)
