@@ -364,13 +364,18 @@ def note_view(request):
         user_id = body.get('user_id')
 
         notes = list(notes_collection.find({}))
-        user = user_collection.find_one({"_id": ObjectId(user_id)})
 
-        if not user:
+        if not user_id:
             sampled_notes = random.sample(notes, 50)
             for note in sampled_notes:
                 note['_id'] = str(note['_id']) 
             return JsonResponse(sampled_notes, safe=False)
+        
+
+        user = user_collection.find_one({"_id": ObjectId(user_id)})
+        if not user:
+            print("Error: User not found")
+            return JsonResponse({"error": "Invalid request method"})
 
         user_interests = user['interest']
         total_elo = sum(user_interests.values())
