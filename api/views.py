@@ -479,17 +479,18 @@ def get_note_details(request, note_id):
                     {'_id': ObjectId(note_id)},
                     {'$inc': {'views': 1, 'elo': 1}}
                 )
+            
+            # Comment out for now 
+            # if poster and poster['_id'] != user['_id']:
+            #     current_earned = poster['earned'].to_decimal()
+            #     new_earned_value = current_earned + Decimal128("0.01").to_decimal()
+            #     current_balance = poster['balance'].to_decimal()
+            #     new_balance_value = current_balance + Decimal128("0.01").to_decimal()
                 
-            if poster and poster['_id'] != user['_id']:
-                current_earned = poster['earned'].to_decimal()
-                new_earned_value = current_earned + Decimal128("0.01").to_decimal()
-                current_balance = poster['balance'].to_decimal()
-                new_balance_value = current_balance + Decimal128("0.01").to_decimal()
-                
-                users_collection.update_one(
-                    {'_id': ObjectId(note['user_id'])},
-                    {'$set': {'earned': Decimal128(new_earned_value), 'balance': Decimal128(new_balance_value)}}
-                )
+            #     users_collection.update_one(
+            #         {'_id': ObjectId(note['user_id'])},
+            #         {'$set': {'earned': Decimal128(new_earned_value), 'balance': Decimal128(new_balance_value)}}
+            #     )
 
 
             interest_field = f'interest.{note["interest"]}'
