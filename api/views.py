@@ -30,12 +30,13 @@ def send_verification_email(user, user_email, token):
     return requests.post(
         f"{settings.MAILGUN_DOMAIN}",
         auth=("api", f'{settings.MAILGUN_API}'),
-        data={"from": f"Excited User <mailgun@sandboxcdbca9366452406386a436563157c9aa.mailgun.org>",
+        data={"from": f"Excited User <mailgun@note-slide.com>",
               "to": [user_email],
               "subject": "Verify your email",
               "html": f"""<html>
                           <body>
-                            <p>To Go http://127.0.0.1:8000/{endpoint}/{token}/ to verify your email.</p>
+                            <p>Thanks for signing up for NoteSlide!</p>
+                            <p>To Go https://note-slide.com/{endpoint}/{token}/ to verify your email.</p>
                           </body>
                         </html>"""
         }
