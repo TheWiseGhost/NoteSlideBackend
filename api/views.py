@@ -36,7 +36,7 @@ def send_verification_email(user, user_email, token):
               "html": f"""<html>
                           <body>
                             <p>Thanks for signing up for NoteSlide!</p>
-                            <p>To Go https://note-slide.com/{endpoint}/{token}/ to verify your email.</p>
+                            <p>Go to https://note-slide.com/{endpoint}/{token}/ to verify your email.</p>
                           </body>
                         </html>"""
         }
