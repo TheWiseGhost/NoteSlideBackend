@@ -2,7 +2,7 @@ from django.urls import path
 from .views import delete_campaign, delete_ad, edit_ad, edit_campaign, get_campaign_by_id, all_campaigns, upload_campaign, AllAdsView, main, upload_note, get_note_details, toggle_like, upload_ad, decrease_money_view
 from .views import sign_up, login, business_sign_up, business_login, update_favorite, update_ad_clicks, favorites
 from .views import user_notes, user_stats, random_ad, clear_notifs, delete_note, search_notes, note_view, edit_business
-from .views import verify_email, verify_business, buy_ad_credit, business_stats, person_notes, person_stats, toggle_follow
+from .views import verify_email, verify_business, buy_ad_credit, business_stats, person_notes, person_stats, toggle_follow, user_following_notes
 
 urlpatterns = [
     path('', main),
@@ -15,6 +15,7 @@ urlpatterns = [
     path('edit_business/', edit_business, name='edit_business'),
     path('notes/', note_view, name='notes'),
     path('search_notes/', search_notes, name='search_notes'),
+    path('user_following_notes/', user_following_notes, name='user_following_notes'),
     path('user_notes/', user_notes, name='user_notes'),
     path('user_stats/', user_stats, name='user_stats'),
     path('favorites/', favorites, name='favorites'),
