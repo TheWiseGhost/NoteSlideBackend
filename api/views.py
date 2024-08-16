@@ -446,7 +446,7 @@ def user_following_notes(request):
         following_list = user.get('following', [])
 
         if not following_list:
-            return JsonResponse([])  # Return empty if not following anyone
+            return JsonResponse([], safe=False)  # Return empty if not following anyone
 
         # Query for notes where user_id is in the following list
         notes = list(notes_collection.find({"username": {"$in": following_list}}))
@@ -457,7 +457,7 @@ def user_following_notes(request):
         for note in recent_notes:
             note['_id'] = str(note['_id'])
 
-        return JsonResponse(recent_notes, status=200)
+        return JsonResponse(recent_notes, safe=False)
 
     except Exception as e:
         print(traceback.format_exc())
@@ -484,7 +484,7 @@ def user_following(request):
         following_list = user.get('following', [])
 
         if not following_list:
-            return JsonResponse([])  # Return empty if not following anyone
+            return JsonResponse([], safe=False)  # Return empty if not following anyone
 
         # Query for notes where user_id is in the following list
         users = list(user_collection.find({"name": {"$in": following_list}}))
@@ -500,7 +500,7 @@ def user_following(request):
             formatted_user.append(formatted_user)
 
 
-        return JsonResponse(formatted_users, status=200)
+        return JsonResponse(formatted_users, safe=False)
 
     except Exception as e:
         print(traceback.format_exc())
