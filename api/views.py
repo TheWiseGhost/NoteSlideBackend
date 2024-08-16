@@ -497,7 +497,7 @@ def user_following(request):
                 'username': user['name'],
             }
 
-            formatted_user.append(formatted_user)
+            formatted_users.append(formatted_user)
 
 
         return JsonResponse(formatted_users, safe=False)
