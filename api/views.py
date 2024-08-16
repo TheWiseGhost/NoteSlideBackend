@@ -426,45 +426,43 @@ def note_view(request):
 
 @csrf_exempt
 def user_following_notes(request):
-    if request.method == 'POST':
-        try:
-            client = MongoClient(f'{settings.MONGO_URI}')
-            db = client['NoteSlide']
-            notes_collection = db['Notes']
-            user_collection = db['Users']
+    try:
+        client = MongoClient(f'{settings.MONGO_URI}')
+        db = client['NoteSlide']
+        notes_collection = db['Notes']
+        user_collection = db['Users']
 
-            # Parse request body
-            body = json.loads(request.body.decode('utf-8'))
-            user_id = body.get('user_id')
+        # Parse request body
+        body = json.loads(request.body.decode('utf-8'))
+        user_id = body.get('user_id')
 
-            # Find the user in the Users collection
-            user = user_collection.find_one({"_id": ObjectId(user_id)})
+        # Find the user in the Users collection
+        user = user_collection.find_one({"_id": ObjectId(user_id)})
 
-            if not user:
-                return JsonResponse({"error": "User not found"}, status=404)
+        if not user:
+            return JsonResponse({"error": "User not found"}, status=404)
 
-            # Get the list of users that the current user is following
-            following_list = user.get('following', [])
+        # Get the list of users that the current user is following
+        following_list = user.get('following', [])
 
-            if not following_list:
-                return JsonResponse({"notes": []})  # Return empty if not following anyone
+        if not following_list:
+            return JsonResponse({"notes": []})  # Return empty if not following anyone
 
-            # Query for notes where user_id is in the following list
-            notes = list(notes_collection.find({"username": {"$in": following_list}}).sort("date", -1))
+        # Query for notes where user_id is in the following list
+        notes = list(notes_collection.find({"username": {"$in": following_list}}).sort("date", -1))
 
-            # Limit to the 52 most recent notes or less if there are fewer than 52
-            recent_notes = notes[:52]
+        # Limit to the 52 most recent notes or less if there are fewer than 52
+        recent_notes = notes[:52]
 
-            for note in recent_notes:
-                note['_id'] = str(note['_id'])
+        for note in recent_notes:
+            note['_id'] = str(note['_id'])
 
-            return JsonResponse({"notes": recent_notes}, status=200)
+        return JsonResponse({recent_notes}, status=200)
 
-        except Exception as e:
-            print(traceback.format_exc())
-            return JsonResponse({"error": str(e)}, status=500)
+    except Exception as e:
+        print(traceback.format_exc())
+        return JsonResponse({"error": str(e)}, status=500)
 
-    return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
 @csrf_exempt
