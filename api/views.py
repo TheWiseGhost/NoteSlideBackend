@@ -450,7 +450,7 @@ def user_following_notes(request):
                 return JsonResponse({"notes": []})  # Return empty if not following anyone
 
             # Query for notes where user_id is in the following list
-            notes = list(notes_collection.find({"user_id": {"$in": following_list}}).sort("date", -1))
+            notes = list(notes_collection.find({"username": {"$in": following_list}}).sort("date", -1))
 
             # Limit to the 52 most recent notes or less if there are fewer than 52
             recent_notes = notes[:52]
