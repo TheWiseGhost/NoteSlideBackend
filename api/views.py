@@ -457,7 +457,7 @@ def user_following_notes(request):
         for note in recent_notes:
             note['_id'] = str(note['_id'])
 
-        return JsonResponse({recent_notes}, status=200)
+        return JsonResponse(recent_notes, status=200)
 
     except Exception as e:
         print(traceback.format_exc())
