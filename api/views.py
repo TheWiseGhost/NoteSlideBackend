@@ -446,10 +446,10 @@ def user_following_notes(request):
         following_list = user.get('following', [])
 
         if not following_list:
-            return JsonResponse({"notes": []})  # Return empty if not following anyone
+            return JsonResponse([])  # Return empty if not following anyone
 
         # Query for notes where user_id is in the following list
-        notes = list(notes_collection.find({"username": {"$in": following_list}}).sort("date", -1))
+        notes = list(notes_collection.find({"username": {"$in": following_list}}))
 
         # Limit to the 52 most recent notes or less if there are fewer than 52
         recent_notes = notes[:52]
@@ -458,6 +458,49 @@ def user_following_notes(request):
             note['_id'] = str(note['_id'])
 
         return JsonResponse(recent_notes, status=200)
+
+    except Exception as e:
+        print(traceback.format_exc())
+        return JsonResponse({"error": str(e)}, status=500)
+    
+@csrf_exempt
+def user_following(request):
+    try:
+        client = MongoClient(f'{settings.MONGO_URI}')
+        db = client['NoteSlide']
+        user_collection = db['Users']
+
+        # Parse request body
+        body = json.loads(request.body.decode('utf-8'))
+        user_id = body.get('user_id')
+
+        # Find the user in the Users collection
+        user = user_collection.find_one({"_id": ObjectId(user_id)})
+
+        if not user:
+            return JsonResponse({"error": "User not found"}, status=404)
+
+        # Get the list of users that the current user is following
+        following_list = user.get('following', [])
+
+        if not following_list:
+            return JsonResponse([])  # Return empty if not following anyone
+
+        # Query for notes where user_id is in the following list
+        users = list(user_collection.find({"name": {"$in": following_list}}))
+
+        # Limit to the 52 most recent notes or less if there are fewer than 52
+        formatted_users = []
+        for user in users:
+            formatted_user = {
+                '_id': str(user['_id']),
+                'username': user['name'],
+            }
+
+            formatted_user.append(formatted_user)
+
+
+        return JsonResponse(formatted_users, status=200)
 
     except Exception as e:
         print(traceback.format_exc())
