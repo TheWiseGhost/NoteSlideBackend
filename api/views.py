@@ -424,6 +424,7 @@ def note_view(request):
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
+@csrf_exempt
 def user_following_notes(request):
     if request.method == 'POST':
         try:
@@ -460,6 +461,7 @@ def user_following_notes(request):
             return JsonResponse({"notes": recent_notes}, status=200)
 
         except Exception as e:
+            print(traceback.format_exc())
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
