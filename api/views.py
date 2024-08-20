@@ -558,7 +558,7 @@ def get_note_details(request, note_id):
             poster = users_collection.find_one({'_id': ObjectId(note['user_id'])})
             user = users_collection.find_one({'_id': ObjectId(user_id)})  
 
-            if poster and user and poster['_id'] != user['_id']:
+            if poster and user and poster['_id'] != user['_id'] and note_id not in user.get('views', []):
                 # Increment views count
                 notes_collection.update_one(
                     {'_id': ObjectId(note_id)},
@@ -566,7 +566,7 @@ def get_note_details(request, note_id):
                 )
             
             # Add user earned
-            if poster and poster['_id'] != user['_id']:
+            if poster and poster['_id'] != user['_id'] and note_id not in user.get('views', []):
                 current_earned = poster['earned'].to_decimal()
                 new_earned_value = current_earned + Decimal128("0.002").to_decimal()
                 current_balance = poster['balance'].to_decimal()
@@ -594,6 +594,16 @@ def get_note_details(request, note_id):
                 note['liked'] = True
             else:
                 note['liked'] = False
+
+            
+            views = user.get('views', [])
+            views.append(note_id)
+
+            # Update the user's likes in the database
+            users_collection.update_one(
+                {'_id': ObjectId(user_id)},
+                {'$set': {'views': views}}
+            )
 
             print("Note sent")
             return JsonResponse(note, safe=False)
