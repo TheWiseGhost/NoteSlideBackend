@@ -222,7 +222,7 @@ def business_sign_up(request):
             'name': name,
             'email': email,
             'password': hashed_password,
-            'ad_credit': Decimal128('0.00'), 
+            'ad_credit': Decimal128('10.00'), 
             'domain': '',
             'description': "Hey I'm a business", 
             "token": token
@@ -1282,7 +1282,7 @@ def decrease_money_view(request):
 
             if ad:
                 current_money = ad['spend'].to_decimal()
-                new_money_value = current_money + Decimal128("0.05").to_decimal()
+                new_money_value = current_money + Decimal128("0.01").to_decimal()
                 collection.update_one({'_id': ObjectId(ad_id)}, {
                             '$inc': {'views': 1}, 
                             '$set': {'spend': Decimal128(new_money_value)}
@@ -1294,7 +1294,7 @@ def decrease_money_view(request):
 
                 if ad['budget_manager'] == False:
                     current_money = campaign['spend'].to_decimal()
-                    new_money_value = current_money + Decimal128("0.05").to_decimal()
+                    new_money_value = current_money + Decimal128("0.01").to_decimal()
                     collection.update_one(
                         {'_id': ObjectId(campaign_id)}, 
                         {
@@ -1382,7 +1382,7 @@ class AllAdsView(View):
                 # Calculate metrics
                 ctr = round(clicks / views, 2) if views > 0 else 0
                 cpc = round(float(spend) / clicks, 2) if clicks > 0 else 0
-                cpm = 0.05  # As per your requirement, CPM is fixed at 0.05
+                cpm = 10.00  # CPM is fixed at 10.00
                 
                 formatted_ad = {
                     '_id': str(ad['_id']), 
