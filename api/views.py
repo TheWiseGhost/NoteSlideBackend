@@ -597,13 +597,13 @@ def get_note_details(request, note_id):
 
             
             views = user.get('views', [])
-            views.append(note_id)
-
-            # Update the user's likes in the database
-            users_collection.update_one(
-                {'_id': ObjectId(user_id)},
-                {'$set': {'views': views}}
-            )
+            if note_id not in views:
+                views.append(note_id)
+                # Update the user's likes in the database
+                users_collection.update_one(
+                    {'_id': ObjectId(user_id)},
+                    {'$set': {'views': views}}
+                )
 
             print("Note sent")
             return JsonResponse(note, safe=False)
