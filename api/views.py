@@ -674,7 +674,7 @@ def upload_note(request):
         s3 = boto3.client('s3', aws_access_key_id=f'{settings.AWS_ACCESS_KEY_ID}',
                           aws_secret_access_key=f'{settings.AWS_SECRET_ACCESS_KEY}')
         bucket_name = 'noteslide-pdf'
-        key = 'uploads/' + pdf_file.name
+        key = 'uploads/' + user_id + "_" + pdf_file.name
 
         try:
             s3.upload_fileobj(
@@ -941,7 +941,7 @@ def upload_ad(request):
         s3 = boto3.client('s3', aws_access_key_id=f'{settings.AWS_ACCESS_KEY_ID}',
                           aws_secret_access_key=f'{settings.AWS_SECRET_ACCESS_KEY}')
         bucket_name = 'noteslide-pdf'
-        key = 'ads/' + video_file.name
+        key = 'ads/' + user_id + "_" + video_file.name
 
         try:
             s3.upload_fileobj(
