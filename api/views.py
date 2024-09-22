@@ -120,7 +120,9 @@ def sign_up(request):
         print('User signed up')
         return JsonResponse({'message': 'User registered successfully. Please check your email to verify your account.'}, status=201)
     else:
+        print(traceback.format_exc())
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+        
 
 
 @csrf_exempt
@@ -180,7 +182,6 @@ def verify_email(request, token):
         del user['token']
         
         if user['referral']:
-            del user['referral']
             refer = users_collection.find_one({'_id': ObjectId(user['referral'])})
             current_earned = refer['earned'].to_decimal()
             new_earned_value = current_earned + Decimal128("0.25").to_decimal()
@@ -191,7 +192,7 @@ def verify_email(request, token):
                 {'_id': ObjectId(user['referral'])},
                 {'$set': {'earned': Decimal128(new_earned_value), 'balance': Decimal128(new_balance_value)}}
             )
-        
+            del user['referral']
         
         # Insert the user into the main collection
         users_collection.insert_one(user)
