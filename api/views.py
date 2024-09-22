@@ -181,7 +181,7 @@ def verify_email(request, token):
         # Remove the token before inserting into the main collection
         del user['token']
         
-        if user['referral']:
+        if 'referral' in user and user['referral']:
             refer = users_collection.find_one({'_id': ObjectId(user['referral'])})
             current_earned = refer['earned'].to_decimal()
             new_earned_value = current_earned + Decimal128("0.25").to_decimal()
