@@ -60,6 +60,7 @@ def sign_up(request):
         name = data.get('name')
         email = data.get('email')
         password = data.get('password')
+        referral = data.get('referral')
         
         if not name or not email or not password:
             return JsonResponse({'error': 'Missing required fields'}, status=400)
@@ -108,6 +109,10 @@ def sign_up(request):
             'followers': 0,
             'token': token
         }
+
+        if referral:
+            new_user['referral'] = referral
+
         unverified_users_collection.insert_one(new_user)
         
         # Send verification email
@@ -173,6 +178,20 @@ def verify_email(request, token):
         
         # Remove the token before inserting into the main collection
         del user['token']
+        
+        if user['referral']:
+            del user['referral']
+            refer = users_collection.find_one({'_id': ObjectId(user['referral'])})
+            current_earned = refer['earned'].to_decimal()
+            new_earned_value = current_earned + Decimal128("0.25").to_decimal()
+            current_balance = refer['balance'].to_decimal()
+            new_balance_value = current_balance + Decimal128("0.25").to_decimal()
+            
+            users_collection.update_one(
+                {'_id': ObjectId(user['referral'])},
+                {'$set': {'earned': Decimal128(new_earned_value), 'balance': Decimal128(new_balance_value)}}
+            )
+        
         
         # Insert the user into the main collection
         users_collection.insert_one(user)
