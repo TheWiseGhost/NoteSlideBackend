@@ -58,13 +58,16 @@ def sign_up(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         name = data.get('name')
-        name = name.strip()
         email = data.get('email')
         password = data.get('password')
         referral = data.get('referral')
         
         if not name or not email or not password:
             return JsonResponse({'error': 'Missing required fields'}, status=400)
+        
+        name = name.strip()
+        email = email.strip()
+        password = password.strip()
         
         # Check if the user already exists in either collection
         user = users_collection.find_one({'email': email})
@@ -218,13 +221,16 @@ def business_sign_up(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         name = data.get('name')
-        name = name.strip()
         email = data.get('email')
         password = data.get('password')
         
         if not name or not email or not password:
             return JsonResponse({'error': 'Missing required fields'}, status=400)
         
+        name = name.strip()
+        email = email.strip()
+        password = password.strip()
+
         # Check if the user already exists
         user = users_collection.find_one({'email': email})
         if user:
