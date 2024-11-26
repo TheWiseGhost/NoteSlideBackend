@@ -58,6 +58,7 @@ def sign_up(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         name = data.get('name')
+        name = name.strip()
         email = data.get('email')
         password = data.get('password')
         referral = data.get('referral')
@@ -217,6 +218,7 @@ def business_sign_up(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         name = data.get('name')
+        name = name.strip()
         email = data.get('email')
         password = data.get('password')
         
