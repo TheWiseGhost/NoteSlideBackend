@@ -188,9 +188,9 @@ def verify_email(request, token):
         if 'referral' in user and user['referral']:
             refer = users_collection.find_one({'_id': ObjectId(user['referral'])})
             current_earned = refer['earned'].to_decimal()
-            new_earned_value = current_earned + Decimal128("0.25").to_decimal()
+            new_earned_value = current_earned + Decimal128("1.00").to_decimal()
             current_balance = refer['balance'].to_decimal()
-            new_balance_value = current_balance + Decimal128("0.25").to_decimal()
+            new_balance_value = current_balance + Decimal128("1.00").to_decimal()
             
             users_collection.update_one(
                 {'_id': ObjectId(user['referral'])},
