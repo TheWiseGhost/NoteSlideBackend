@@ -596,9 +596,9 @@ def get_note_details(request, note_id):
             # Add user earned
             if poster and poster['_id'] != user['_id'] and note_id not in user.get('views', []):
                 current_earned = poster['earned'].to_decimal()
-                new_earned_value = current_earned + Decimal128("0.01").to_decimal()
+                new_earned_value = current_earned + Decimal128("0.05").to_decimal()
                 current_balance = poster['balance'].to_decimal()
-                new_balance_value = current_balance + Decimal128("0.01").to_decimal()
+                new_balance_value = current_balance + Decimal128("0.05").to_decimal()
                 
                 users_collection.update_one(
                     {'_id': ObjectId(note['user_id'])},
