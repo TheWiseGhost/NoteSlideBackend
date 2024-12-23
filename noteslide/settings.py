@@ -25,9 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['noteslidebackend.onrender.com']
+ALLOWED_HOSTS = ['noteslidebackend.onrender.com', '127.0.0.1', '28b9-104-176-67-99.ngrok-free.app']
 
 
 # Application definition
@@ -148,3 +148,6 @@ MAILGUN_API = os.getenv('MAILGUN_API')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 SECRET_KEY = os.getenv('SECRET_KEY')
+STRIPE_PK = os.getenv('STRIPE_PK')
+STRIPE_SK = os.getenv('STRIPE_SK')
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')

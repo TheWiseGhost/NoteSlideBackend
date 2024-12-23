@@ -10,6 +10,7 @@ import boto3
 from botocore.exceptions import ClientError
 from bson import ObjectId
 from bson.decimal128 import Decimal128
+from decimal import Decimal
 from bson.json_util import dumps
 import random
 import traceback
@@ -23,6 +24,7 @@ from pymongo.errors import OperationFailure
 import bcrypt
 import json
 import requests
+import stripe
 
 
 def send_verification_email(user, user_email, token):
@@ -1695,3 +1697,127 @@ def toggle_follow(request):
         return JsonResponse({'following': following}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+    
+
+
+# STRIPE CHECKOUT STUFF
+
+# Set Stripe API key
+stripe.api_key = settings.STRIPE_SK
+
+# MongoDB setup
+client = MongoClient(settings.MONGO_URI)
+db = client["NoteSlide"]
+businesses_collection = db["Businesses"]
+
+# Stripe webhook secret
+WEBHOOK_SECRET = settings.STRIPE_WEBHOOK_SECRET
+
+@csrf_exempt
+def create_checkout_session(request):
+    """
+    Creates a Stripe Checkout Session for one-time payments.
+    """
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            product_id = data.get("product_id")
+            user_id = data.get("user_id")
+
+            # Product price mapping in cents (e.g., $5 = 500 cents)
+            product_to_price_mapping = {
+                "prod_RP9cgLnuHCyOSC": "price_1QWLIsKbaPJDgRFUL7pmCiSO",   # $5
+                "prod_RP9cMQUI1XUd1R": "price_1QWLIqKbaPJDgRFU5Vtp0Awd",  # $20
+                "prod_RP9clgg2F0STZa": "price_1QWLInKbaPJDgRFUxYIpPBXY",  # $50
+                "prod_RP9bMSBsL7kw2C": "price_1QWLIlKbaPJDgRFUDng8uafU", # $100
+                "prod_RP9bqqcFCSxzGv": "price_1QWLIiKbaPJDgRFUFiurene7", # $500
+                "prod_RP9b8t7JTmE4G5": "price_1QWLIeKbaPJDgRFUwIZnXPqi" # $1500
+            }
+
+            if product_id not in product_to_price_mapping:
+                return JsonResponse({"error": "Invalid Product ID"}, status=400)
+
+            # Create a Stripe Checkout Session
+            session = stripe.checkout.Session.create(
+                payment_method_types=["card"],
+                line_items=[
+                    {
+                        "price": product_to_price_mapping[product_id],
+                        "quantity": 1,
+                    }
+                ],
+                mode="subscription",  # One-time payment mode
+                success_url="https://note-slide.com/business",
+                cancel_url="https://note-slide.com/business",
+                metadata={
+                    "user_id": user_id,  # Attach user ID as metadata
+                    "product_id": product_id,  # Attach product ID as metadata
+                }
+            )
+
+            return JsonResponse({"url": session.url})
+
+        except Exception as e:
+            print(traceback.format_exc())
+            return JsonResponse({"error": str(e)}, status=400)
+
+
+@csrf_exempt
+def stripe_webhook(request):
+    """
+    Handles Stripe webhook events.
+    """
+    payload = request.body
+    sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, WEBHOOK_SECRET
+        )
+    except stripe.error.SignatureVerificationError as e:
+        # Signature doesn't match
+        return JsonResponse({'error': 'Invalid signature'}, status=400)
+
+    # Handle checkout.session.completed
+    if event["type"] == "checkout.session.completed":
+        session = event["data"]["object"]
+        handle_checkout_session(session)
+
+    return JsonResponse({"status": "success"}, status=200)
+
+
+def handle_checkout_session(session):
+    """
+    Processes the checkout session completion event.
+    """
+    user_id = session["metadata"].get("user_id")
+    product_id = session["metadata"].get("product_id")
+
+    # Map product_id to ad credits
+    product_to_credit = {
+        "prod_RP9cgLnuHCyOSC": 5,
+        "prod_RP9cMQUI1XUd1R": 20,
+        "prod_RP9clgg2F0STZa": 50,
+        "prod_RP9bMSBsL7kw2C": 100,
+        "prod_RP9bqqcFCSxzGv": 500,
+        "prod_RP9b8t7JTmE4G5": 1500,
+    }
+
+    credit = product_to_credit.get(product_id, 0)
+    # ad_credit_value = Decimal128(Decimal(credit)).to_decimal()
+
+    if user_id:
+        business = businesses_collection.find_one({'_id': ObjectId(user_id)})
+    else:
+        print("no user id")    
+
+    if business and credit > 0:
+        try:
+            current_money = business['ad_credit'].to_decimal()
+            new_money_value = current_money + Decimal128(str(credit)).to_decimal()
+            businesses_collection.update_one({'_id': ObjectId(user_id)}, {
+                        '$set': {'ad_credit': Decimal128(new_money_value)}
+                    })
+            print(f"Added {credit} credits to user {user_id}.")
+        except Exception as e:
+            print(f"Failed to update MongoDB: {e}")
