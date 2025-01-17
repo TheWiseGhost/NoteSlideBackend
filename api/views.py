@@ -1731,12 +1731,12 @@ def create_checkout_session(request):
 
             # Product price mapping in cents (e.g., $5 = 500 cents)
             product_to_price_mapping = {
-                "prod_RP9cgLnuHCyOSC": "price_1QWLIsKbaPJDgRFUL7pmCiSO",   # $5
-                "prod_RP9cMQUI1XUd1R": "price_1QWLIqKbaPJDgRFU5Vtp0Awd",  # $20
-                "prod_RP9clgg2F0STZa": "price_1QWLInKbaPJDgRFUxYIpPBXY",  # $50
-                "prod_RP9bMSBsL7kw2C": "price_1QWLIlKbaPJDgRFUDng8uafU", # $100
-                "prod_RP9bqqcFCSxzGv": "price_1QWLIiKbaPJDgRFUFiurene7", # $500
-                "prod_RP9b8t7JTmE4G5": "price_1QWLIeKbaPJDgRFUwIZnXPqi" # $1500
+                "prod_RP9cgLnuHCyOSC": "price_1Qi6eJKbaPJDgRFUzMH5LC9r",   # $5
+                "prod_RP9cMQUI1XUd1R": "price_1Qi6fIKbaPJDgRFU1E4Nufwt",  # $20
+                "prod_RP9clgg2F0STZa": "price_1Qi6ffKbaPJDgRFUnYfhY34e",  # $50
+                "prod_RP9bMSBsL7kw2C": "price_1Qi6fzKbaPJDgRFUUQMXkjkd", # $100
+                "prod_RP9bqqcFCSxzGv": "price_1Qi6gMKbaPJDgRFUwFH94elJ", # $500
+                "prod_RP9b8t7JTmE4G5": "price_1Qi6gyKbaPJDgRFUCiHYRkJo" # $1500
             }
 
             if product_id not in product_to_price_mapping:
@@ -1751,7 +1751,7 @@ def create_checkout_session(request):
                         "quantity": 1,
                     }
                 ],
-                mode="subscription",  # One-time payment mode
+                mode="payment",  # One-time payment mode
                 success_url="https://note-slide.com/business",
                 cancel_url="https://note-slide.com/business",
                 metadata={
