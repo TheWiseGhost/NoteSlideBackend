@@ -113,6 +113,7 @@ def sign_up(request):
             'earned': Decimal128("0.00"),
             'balance': Decimal128("0.00"),
             'followers': 0,
+            'referrals': 0,
             'token': token
         }
 
@@ -197,6 +198,10 @@ def verify_email(request, token):
             users_collection.update_one(
                 {'_id': ObjectId(user['referral'])},
                 {'$set': {'earned': Decimal128(new_earned_value), 'balance': Decimal128(new_balance_value)}}
+            )
+            users_collection.update_one(
+                {'_id': ObjectId(user['referral'])},
+                {'$inc': {'referrals': 1 }}
             )
             del user['referral']
         
