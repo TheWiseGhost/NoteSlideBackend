@@ -102,6 +102,10 @@ def sign_up(request):
         
         # Create verification token
         token = get_random_string(length=32)
+
+        now = datetime.now()
+        # Format the date as 'm/d/yy'
+        formatted_date = now.strftime('%m/%d/%y')
         
         # Insert the new user into the unverified collection
         new_user = {
@@ -114,7 +118,8 @@ def sign_up(request):
             'balance': Decimal128("0.00"),
             'followers': 0,
             'referrals': 0,
-            'token': token
+            'token': token,
+            'created_at': formatted_date
         }
 
         if referral:
@@ -251,6 +256,10 @@ def business_sign_up(request):
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
         token = get_random_string(length=32)
+
+        now = datetime.now()
+        # Format the date as 'm/d/yy'
+        formatted_date = now.strftime('%m/%d/%y')
         
         # Insert the new user into the database
         new_user = {
@@ -260,7 +269,8 @@ def business_sign_up(request):
             'ad_credit': Decimal128('10.00'), 
             'domain': '',
             'description': "Hey I'm a business", 
-            "token": token
+            "token": token,
+            "created_at": formatted_date
         }
         unverified_users_collection.insert_one(new_user)
         send_verification_email("business", email, token)
