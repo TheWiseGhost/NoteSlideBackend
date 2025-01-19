@@ -196,9 +196,9 @@ def verify_email(request, token):
         if 'referral' in user and user['referral']:
             refer = users_collection.find_one({'_id': ObjectId(user['referral'])})
             current_earned = refer['earned'].to_decimal()
-            new_earned_value = current_earned + Decimal128("1.00").to_decimal()
+            new_earned_value = current_earned + Decimal128("0.25").to_decimal()
             current_balance = refer['balance'].to_decimal()
-            new_balance_value = current_balance + Decimal128("1.00").to_decimal()
+            new_balance_value = current_balance + Decimal128("0.25").to_decimal()
             
             users_collection.update_one(
                 {'_id': ObjectId(user['referral'])},
@@ -266,7 +266,7 @@ def business_sign_up(request):
             'name': name,
             'email': email,
             'password': hashed_password,
-            'ad_credit': Decimal128('10.00'), 
+            'ad_credit': Decimal128('5.00'), 
             'domain': '',
             'description': "Hey I'm a business", 
             "token": token,
@@ -613,9 +613,9 @@ def get_note_details(request, note_id):
             # Add user earned
             if poster and poster['_id'] != user['_id'] and note_id not in user.get('views', []):
                 current_earned = poster['earned'].to_decimal()
-                new_earned_value = current_earned + Decimal128("0.05").to_decimal()
+                new_earned_value = current_earned + Decimal128("0.01").to_decimal()
                 current_balance = poster['balance'].to_decimal()
-                new_balance_value = current_balance + Decimal128("0.05").to_decimal()
+                new_balance_value = current_balance + Decimal128("0.01").to_decimal()
                 
                 users_collection.update_one(
                     {'_id': ObjectId(note['user_id'])},
@@ -1327,7 +1327,7 @@ def decrease_money_view(request):
 
             if ad:
                 current_money = ad['spend'].to_decimal()
-                new_money_value = current_money + Decimal128("0.01").to_decimal()
+                new_money_value = current_money + Decimal128("0.02").to_decimal()
                 collection.update_one({'_id': ObjectId(ad_id)}, {
                             '$inc': {'views': 1}, 
                             '$set': {'spend': Decimal128(new_money_value)}
@@ -1339,7 +1339,7 @@ def decrease_money_view(request):
 
                 if ad['budget_manager'] == False:
                     current_money = campaign['spend'].to_decimal()
-                    new_money_value = current_money + Decimal128("0.01").to_decimal()
+                    new_money_value = current_money + Decimal128("0.02").to_decimal()
                     collection.update_one(
                         {'_id': ObjectId(campaign_id)}, 
                         {
@@ -1427,7 +1427,7 @@ class AllAdsView(View):
                 # Calculate metrics
                 ctr = round(clicks / views, 2) if views > 0 else 0
                 cpc = round(float(spend) / clicks, 2) if clicks > 0 else 0
-                cpm = 10.00  # CPM is fixed at 10.00
+                cpm = 20.00  # CPM is fixed at 10.00
                 
                 formatted_ad = {
                     '_id': str(ad['_id']), 
