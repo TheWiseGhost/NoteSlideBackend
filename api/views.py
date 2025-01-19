@@ -708,6 +708,7 @@ def upload_note(request):
         pdf_file = request.FILES['pdf_file']
         title = request.data.get('title', 'Untitled')
         short_title = request.data.get('short_title', 'Untitled')
+        school = request.data.get('school', 'None')
         interest = request.data.get('interest', 'No Interest')
         description = request.data.get('description', title)
         user = request.data.get('user', 'unknown_user')
@@ -736,7 +737,7 @@ def upload_note(request):
             client = MongoClient(f'{settings.MONGO_URI}')
             db = client['NoteSlide']
             collection = db['Notes']
-            collection.insert_one({'title': title, 'short_title': short_title, 'interest': interest, 'elo': 1, 'likes': 0, 'views': 0, 'username': user, 'user_id': user_id, 's3_path': s3_url, 'description': description, 'created_at': formatted_date})
+            collection.insert_one({'title': title, 'short_title': short_title, 'school': school, 'interest': interest, 'elo': 1, 'likes': 0, 'views': 0, 'username': user, 'user_id': user_id, 's3_path': s3_url, 'description': description, 'created_at': formatted_date})
 
             print("Note uploaded")
             return Response({'success': "success"}, status=status.HTTP_201_CREATED)
