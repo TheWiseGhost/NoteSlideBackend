@@ -25,6 +25,9 @@ import bcrypt
 import json
 import requests
 import stripe
+from io import BytesIO
+import re
+import hashlib
 
 
 def send_verification_email(user, user_email, token):
@@ -704,8 +707,9 @@ def favorites(request):
 @csrf_exempt
 @api_view(['POST'])
 def upload_note(request):
-    if request.method == 'POST' and request.FILES.get('pdf_file'):
-        pdf_file = request.FILES['pdf_file']
+    if request.method == 'POST':
+        pdf_file = request.FILES.get('pdf_file')
+        drive_url = request.data.get('drive_url')
         title = request.data.get('title', 'Untitled')
         short_title = request.data.get('short_title', 'Untitled')
         school = request.data.get('school', 'None')
@@ -714,37 +718,113 @@ def upload_note(request):
         user = request.data.get('user', 'unknown_user')
         user_id = request.data.get('user_id', '')
 
-        print(user)
-
-        # Store in AWS S3
         s3 = boto3.client('s3', aws_access_key_id=f'{settings.AWS_ACCESS_KEY_ID}',
                           aws_secret_access_key=f'{settings.AWS_SECRET_ACCESS_KEY}')
         bucket_name = 'noteslide-pdf'
-        key = 'uploads/' + user_id + "_" + pdf_file.name
 
-        try:
-            s3.upload_fileobj(
-                pdf_file, bucket_name, key, 
-                ExtraArgs={'ACL': 'public-read', 'ContentType': 'application/pdf'}
-            )
-            s3_url = f"https://{bucket_name}.s3.amazonaws.com/{key}"
+        # Handle Google Drive URL
+        if drive_url:
+            try:
+                # Extract file ID from Google Drive URL
+                match = re.search(r'/d/([a-zA-Z0-9_-]+)(?:/|$)', drive_url)
+                if not match:
+                    return Response({'error': 'Invalid Google Drive URL'}, status=status.HTTP_400_BAD_REQUEST)
+                file_id = match.group(1)
+                download_url = f"https://docs.google.com/document/d/{file_id}/export?format=pdf"
 
-            now = datetime.now()
-            # Format the date as 'm/d/yy'
-            formatted_date = now.strftime('%m/%d/%y')
-            
-            # Store the s3_url in MongoDB
-            client = MongoClient(f'{settings.MONGO_URI}')
-            db = client['NoteSlide']
-            collection = db['Notes']
-            collection.insert_one({'title': title, 'short_title': short_title, 'school': school, 'interest': interest, 'elo': 1, 'likes': 0, 'views': 0, 'username': user, 'user_id': user_id, 's3_path': s3_url, 'description': description, 'created_at': formatted_date})
+                # Download PDF from Google Drive
+                response = requests.get(download_url, stream=True)
+                if response.status_code != 200:
+                    return Response({'error': 'Failed to download PDF from Google Drive. Ensure the document is publicly shared.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            print("Note uploaded")
-            return Response({'success': "success"}, status=status.HTTP_201_CREATED)
-        except ClientError as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                # Save PDF content to buffer
+                pdf_buffer = BytesIO()
+                for chunk in response.iter_content(1024):
+                    pdf_buffer.write(chunk)
+                pdf_buffer.seek(0)
 
-    return Response({'error': 'Invalid request'}, status=status.HTTP_400_BAD_REQUEST)
+                # Generate unique key for S3
+                key = f'uploads/{user_id}_{hashlib.md5(f"{user_id}{datetime.now()}".encode()).hexdigest()[:10]}.pdf'
+
+                # Upload to S3
+                s3.upload_fileobj(
+                    pdf_buffer,
+                    bucket_name,
+                    key,
+                    ExtraArgs={'ACL': 'public-read', 'ContentType': 'application/pdf'}
+                )
+                s3_url = f"https://{bucket_name}.s3.amazonaws.com/{key}"
+
+                # Save to MongoDB
+                now = datetime.now()
+                formatted_date = now.strftime('%m/%d/%y')
+                
+                client = MongoClient(f'{settings.MONGO_URI}')
+                db = client['NoteSlide']
+                collection = db['Notes']
+                collection.insert_one({
+                    'title': title,
+                    'short_title': short_title,
+                    'school': school,
+                    'interest': interest,
+                    'elo': 1,
+                    'likes': 0,
+                    'views': 0,
+                    'username': user,
+                    'user_id': user_id,
+                    's3_path': s3_url,
+                    'description': description,
+                    'created_at': formatted_date
+                })
+
+                return Response({'success': 'Note uploaded successfully from Google Drive'}, status=status.HTTP_201_CREATED)
+
+            except Exception as e:
+                print(traceback.format_exc())
+                return Response({'error': f'Failed to process Google Drive URL: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # Handle direct PDF upload
+        elif pdf_file:
+            try:
+                key = f'uploads/{user_id}_{hashlib.md5(f"{user_id}{datetime.now()}".encode()).hexdigest()[:10]}.pdf'
+                s3.upload_fileobj(
+                    pdf_file, bucket_name, key, 
+                    ExtraArgs={'ACL': 'public-read', 'ContentType': 'application/pdf'}
+                )
+                s3_url = f"https://{bucket_name}.s3.amazonaws.com/{key}"
+
+                # Save to MongoDB
+                now = datetime.now()
+                formatted_date = now.strftime('%m/%d/%y')
+                
+                client = MongoClient(f'{settings.MONGO_URI}')
+                db = client['NoteSlide']
+                collection = db['Notes']
+                collection.insert_one({
+                    'title': title,
+                    'short_title': short_title,
+                    'school': school,
+                    'interest': interest,
+                    'elo': 1,
+                    'likes': 0,
+                    'views': 0,
+                    'username': user,
+                    'user_id': user_id,
+                    's3_path': s3_url,
+                    'description': description,
+                    'created_at': formatted_date
+                })
+
+                return Response({'success': 'Note uploaded successfully from file'}, status=status.HTTP_201_CREATED)
+
+            except Exception as e:
+                print(traceback.format_exc())
+                return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        else:
+            return Response({'error': 'No PDF file or Google Drive URL provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({'error': 'Invalid request method'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 

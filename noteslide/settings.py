@@ -89,8 +89,8 @@ DATABASES = {
     }
 }
 
+# 'http://localhost:3000'
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
     'https://noteslide.netlify.app',
     'https://note-slide.com',
     'http://note-slide.com',
