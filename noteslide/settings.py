@@ -28,7 +28,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DEBUG = False
 
 # '127.0.0.1', '28b9-104-176-67-99.ngrok-free.app'
-ALLOWED_HOSTS = ['noteslidebackend.onrender.com']
+ALLOWED_HOSTS = [
+    'noteslidebackend.onrender.com', 
+    '104.224.12.0/24',
+    '104.224.13.0/24',
+    '104.224.14.0/24',
+    '104.224.15.0/24',
+    '103.207.40.0/24',
+    '103.207.41.0/24',
+    '103.207.42.0/24',
+    '103.207.43.0/24',
+]
 
 
 # Application definition
@@ -96,6 +106,7 @@ CORS_ALLOWED_ORIGINS = [
     'https://noteslide.netlify.app',
     'https://note-slide.com',
     'http://note-slide.com',
+    'https://service.prerender.io', 
 ]
 
 # Password validation
