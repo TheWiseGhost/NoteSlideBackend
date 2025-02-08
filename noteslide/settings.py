@@ -44,11 +44,13 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'rest_framework',
     'rest_framework_simplejwt',
-    'frontend.apps.FrontendConfig'
+    'frontend.apps.FrontendConfig',
+    'django_seo_js',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'django_seo_js.middleware.HashBangMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -152,3 +154,6 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 STRIPE_PK = os.getenv('STRIPE_PK')
 STRIPE_SK = os.getenv('STRIPE_SK')
 STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')
+
+SEO_JS_PRERENDER_URL = "https://service.prerender.io/"
+SEO_JS_PRERENDER_TOKEN = os.getenv('PRERENDER_API')
