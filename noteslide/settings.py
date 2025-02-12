@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-# '127.0.0.1', '28b9-104-176-67-99.ngrok-free.app'
+# , '28b9-104-176-67-99.ngrok-free.app'
 ALLOWED_HOSTS = [
     'noteslidebackend.onrender.com', 
     '104.224.12.0/24',
@@ -55,12 +55,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'frontend.apps.FrontendConfig',
-    'django_seo_js',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django_seo_js.middleware.HashBangMiddleware',
+    "noteslide.middleware.prerender.PrerenderMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -166,5 +165,4 @@ STRIPE_PK = os.getenv('STRIPE_PK')
 STRIPE_SK = os.getenv('STRIPE_SK')
 STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')
 
-SEO_JS_PRERENDER_URL = "https://service.prerender.io/"
-SEO_JS_PRERENDER_TOKEN = os.getenv('PRERENDER_API')
+PRERENDER_API = os.getenv('PRERENDER_API')

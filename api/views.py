@@ -54,6 +54,12 @@ def decimal_to_float(value):
 
 
 @csrf_exempt
+def main(req):
+    print("wsg")
+    return HttpResponse("Wsg");
+
+
+@csrf_exempt
 def sign_up(request):
     client = MongoClient(f'{settings.MONGO_URI}')
     db = client["NoteSlide"]
