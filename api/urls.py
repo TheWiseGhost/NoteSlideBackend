@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import delete_campaign, delete_ad, edit_ad, edit_campaign, get_campaign_by_id, all_campaigns, upload_campaign, AllAdsView, main, upload_note, get_note_details, toggle_like, upload_ad, decrease_money_view
 from .views import sign_up, login, business_sign_up, business_login, update_favorite, update_ad_clicks, favorites
-from .views import user_notes, user_stats, random_ad, clear_notifs, delete_note, search_notes, note_view, edit_business
+from .views import user_notes, user_stats, random_ad, clear_notifs, delete_note, search_notes, note_view, edit_business, get_note_seo
 from .views import verify_email, verify_business, buy_ad_credit, business_stats, person_notes, person_stats, toggle_follow, user_following_notes, user_following, create_checkout_session, stripe_webhook
 
 urlpatterns = [
@@ -46,4 +46,5 @@ urlpatterns = [
     path('toggle_follow/', toggle_follow, name='toggle_follow'),
     path("create_checkout_session/", create_checkout_session, name="create_checkout_session"),
     path("stripe/webhook/", stripe_webhook, name="stripe-webhook"),
+    path('note/seo/<str:note_id>/', get_note_seo, name='note_detail_seo'),
 ]

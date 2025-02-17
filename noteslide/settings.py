@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # , '28b9-104-176-67-99.ngrok-free.app'
 ALLOWED_HOSTS = [
@@ -38,6 +38,7 @@ ALLOWED_HOSTS = [
     '103.207.41.0/24',
     '103.207.42.0/24',
     '103.207.43.0/24',
+    '127.0.0.1',
 ]
 
 
@@ -106,6 +107,7 @@ CORS_ALLOWED_ORIGINS = [
     'https://note-slide.com',
     'http://note-slide.com',
     'https://service.prerender.io', 
+    'http://localhost:3000',
 ]
 
 # Password validation

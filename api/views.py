@@ -595,74 +595,78 @@ def search_notes(request):
 @csrf_exempt
 def get_note_details(request, note_id):
     try:
-        # Parse the JSON body
-        body = json.loads(request.body.decode('utf-8'))
-        user_id = body.get('user_id')
+        if request.method == 'POST':
+            # Parse the JSON body
+            body = json.loads(request.body.decode('utf-8'))
+            user_id = body.get('user_id')
 
-        # MongoDB connection setup
-        client = MongoClient(f'{settings.MONGO_URI}')
-        db = client['NoteSlide']
-        notes_collection = db['Notes']
-        users_collection = db['Users']
+            # MongoDB connection setup
+            client = MongoClient(f'{settings.MONGO_URI}')
+            db = client['NoteSlide']
+            notes_collection = db['Notes']
+            users_collection = db['Users']
 
-        # Fetch the note
-        note = notes_collection.find_one({'_id': ObjectId(note_id)})
-        note['_id'] = str(note['_id'])
-        if note:
-            poster = users_collection.find_one({'_id': ObjectId(note['user_id'])})
-            user = users_collection.find_one({'_id': ObjectId(user_id)})  
+            # Fetch the note
+            note = notes_collection.find_one({'_id': ObjectId(note_id)})
+            note['_id'] = str(note['_id'])
+            if note:
+                poster = users_collection.find_one({'_id': ObjectId(note['user_id'])})
+                user = users_collection.find_one({'_id': ObjectId(user_id)})  
 
-            if poster and user and poster['_id'] != user['_id'] and note_id not in user.get('views', []):
-                # Increment views count
-                notes_collection.update_one(
-                    {'_id': ObjectId(note_id)},
-                    {'$inc': {'views': 1, 'elo': 1}}
-                )
-            
-            # Add user earned
-            if poster and poster['_id'] != user['_id'] and note_id not in user.get('views', []):
-                current_earned = poster['earned'].to_decimal()
-                new_earned_value = current_earned + Decimal128("0.01").to_decimal()
-                current_balance = poster['balance'].to_decimal()
-                new_balance_value = current_balance + Decimal128("0.01").to_decimal()
+                if poster and user and poster['_id'] != user['_id'] and note_id not in user.get('views', []):
+                    # Increment views count
+                    notes_collection.update_one(
+                        {'_id': ObjectId(note_id)},
+                        {'$inc': {'views': 1, 'elo': 1}}
+                    )
                 
-                users_collection.update_one(
-                    {'_id': ObjectId(note['user_id'])},
-                    {'$set': {'earned': Decimal128(new_earned_value), 'balance': Decimal128(new_balance_value)}}
-                )
+                # Add user earned
+                if poster and poster['_id'] != user['_id'] and note_id not in user.get('views', []):
+                    current_earned = poster['earned'].to_decimal()
+                    new_earned_value = current_earned + Decimal128("0.01").to_decimal()
+                    current_balance = poster['balance'].to_decimal()
+                    new_balance_value = current_balance + Decimal128("0.01").to_decimal()
+                    
+                    users_collection.update_one(
+                        {'_id': ObjectId(note['user_id'])},
+                        {'$set': {'earned': Decimal128(new_earned_value), 'balance': Decimal128(new_balance_value)}}
+                    )
 
 
-            interest_field = f'interest.{note["interest"]}'
-            if user:
-                users_collection.update_one(
-                    {'_id': ObjectId(user_id)},
-                    {'$inc': {interest_field: 1}}
-                )
+                interest_field = f'interest.{note["interest"]}'
+                if user:
+                    users_collection.update_one(
+                        {'_id': ObjectId(user_id)},
+                        {'$inc': {interest_field: 1}}
+                    )
+                    
+                if user and 'favorites' in user and note['_id'] in user['favorites']:
+                    note['favorite'] = True
+                else:
+                    note['favorite'] = False
+
+                if user and 'likes' in user and note['_id'] in user['likes']:
+                    note['liked'] = True
+                else:
+                    note['liked'] = False
+
                 
-            if user and 'favorites' in user and note['_id'] in user['favorites']:
-                note['favorite'] = True
+                views = user.get('views', [])
+                if note_id not in views:
+                    views.append(note_id)
+                    # Update the user's likes in the database
+                    users_collection.update_one(
+                        {'_id': ObjectId(user_id)},
+                        {'$set': {'views': views}}
+                    )
+
+                print("Note sent")
+                return JsonResponse(note, safe=False)
             else:
-                note['favorite'] = False
-
-            if user and 'likes' in user and note['_id'] in user['likes']:
-                note['liked'] = True
-            else:
-                note['liked'] = False
-
-            
-            views = user.get('views', [])
-            if note_id not in views:
-                views.append(note_id)
-                # Update the user's likes in the database
-                users_collection.update_one(
-                    {'_id': ObjectId(user_id)},
-                    {'$set': {'views': views}}
-                )
-
-            print("Note sent")
-            return JsonResponse(note, safe=False)
-        else:
-            return JsonResponse({'error': 'Note not found'}, status=404)
+                return JsonResponse({'error': 'Note not found'}, status=404)
+        elif request.method == 'GET':
+            return get_note_seo(request, note_id)
+        
     except Exception as e:
         print(traceback.format_exc())
         return JsonResponse({'error': str(e)}, status=500)
@@ -1923,3 +1927,30 @@ def handle_checkout_session(session):
             print(f"Added {credit} credits to user {user_id}.")
         except Exception as e:
             print(f"Failed to update MongoDB: {e}")
+
+
+@csrf_exempt
+def get_note_seo(request, note_id):
+    try:
+        client = MongoClient(f'{settings.MONGO_URI}')
+        db = client['NoteSlide']
+        notes_collection = db['Notes']
+        
+        note = notes_collection.find_one({'_id': ObjectId(note_id)})
+        if not note:
+            return JsonResponse({'error': 'Note not found'}, status=404)
+        
+        seo_data = {
+            'title': note.get('title', ''),
+            'description': note.get('description', ''),
+            'interest': note.get('interest', ''),
+            'username': note.get('username', ''),
+            'views': note.get('views', 0),
+            'likes': note.get('likes', 0),
+            's3_path': note.get('s3_path', '')
+        }
+        return JsonResponse(seo_data)
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
