@@ -9,12 +9,13 @@ db = client["NoteSlide"]
 notes_collection = db["Notes"]
 
 class NoteSitemap(Sitemap):
+    domain = 'note-slide.com'  # Need to specify the domain
+
     def items(self):
-        # Convert the MongoDB cursor to a list
-        urls = list(notes_collection.find({}, {"_id": 1}))  # Fetch only IDs
+        urls = list(notes_collection.find({}, {"_id": 1}))
         return urls
 
     def location(self, item):
-        # Generate the location URL for each note
         return f"/view/{item['_id']}/"
+
     
