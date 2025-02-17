@@ -54,5 +54,5 @@ urlpatterns = [
     path("create_checkout_session/", create_checkout_session, name="create_checkout_session"),
     path("stripe/webhook/", stripe_webhook, name="stripe-webhook"),
     path('note/seo/<str:note_id>/', get_note_seo, name='note_detail_seo'),
-    path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="sitemap"),
+    path("sitemap.xml/", sitemap, {"sitemaps": sitemaps}, name="sitemap"),
 ]

@@ -9,11 +9,12 @@ db = client["NoteSlide"]
 notes_collection = db["Notes"]
 
 class NoteSitemap(Sitemap):
-    changefreq = "daily"
-    priority = 0.8
-
     def items(self):
-        return notes_collection.find({}, {"_id": 1})  # Fetch only IDs
+        # Convert the MongoDB cursor to a list
+        urls = list(notes_collection.find({}, {"_id": 1}))  # Fetch only IDs
+        return urls
 
     def location(self, item):
-        return f"/view/{str(item['_id'])}/"  # Generates URLs like /view/12345/
+        # Generate the location URL for each note
+        return f"/view/{item['_id']}/"
+    
