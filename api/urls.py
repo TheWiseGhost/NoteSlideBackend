@@ -4,6 +4,13 @@ from .views import sign_up, login, business_sign_up, business_login, update_favo
 from .views import user_notes, user_stats, random_ad, clear_notifs, delete_note, search_notes, note_view, edit_business, get_note_seo
 from .views import verify_email, verify_business, buy_ad_credit, business_stats, person_notes, person_stats, toggle_follow, user_following_notes, user_following, create_checkout_session, stripe_webhook
 
+from django.contrib.sitemaps.views import sitemap
+from .sitemap import NoteSitemap
+
+sitemaps = {
+    "notes": NoteSitemap(),
+}
+
 urlpatterns = [
     path('', main),
     path('signup/', sign_up,  name='signup'),
@@ -47,4 +54,5 @@ urlpatterns = [
     path("create_checkout_session/", create_checkout_session, name="create_checkout_session"),
     path("stripe/webhook/", stripe_webhook, name="stripe-webhook"),
     path('note/seo/<str:note_id>/', get_note_seo, name='note_detail_seo'),
+    path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="sitemap"),
 ]
