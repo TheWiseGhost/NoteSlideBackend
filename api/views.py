@@ -76,7 +76,7 @@ def sign_up(request):
         if not name or not email or not password:
             return JsonResponse({'error': 'Missing required fields'}, status=400)
         
-        name = name.strip()
+        name = name.replace(" ", "")
         email = email.strip()
         password = password.strip()
         
@@ -1750,11 +1750,18 @@ def person_stats(request, username):
         views += note['views']
         likes += note['likes']
 
-    stats = {
-        'views': views, 
-        'likes': likes, 
-        'followers': user['followers'] if 'followers' in user else 0
-    }
+    if user:
+        stats = {
+            'views': views, 
+            'likes': likes, 
+            'followers': user['followers'] if 'followers' in user else 0
+        }
+    else:
+        stats = {
+            'views': 0, 
+            'likes': 0, 
+            'followers': []
+        }
 
     return JsonResponse(stats, safe=False)
 
@@ -1785,8 +1792,6 @@ def toggle_follow(request):
                 {'_id': ObjectId(user_id)},
                 {'$set': {'following': following}}
             )
-        else:
-            return JsonResponse({'error': 'User not found'}, status=404)
 
 
         person = user_collection.find_one({'name': person_username})
@@ -1797,8 +1802,6 @@ def toggle_follow(request):
                     '$inc': {'followers': 1 if person_username in following else -1}, 
                 }
             )
-        else:
-            return JsonResponse({'error': 'Note not found'}, status=404)
         
         return JsonResponse({'following': following}, status=200)
     except Exception as e:

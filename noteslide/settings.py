@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-# , '28b9-104-176-67-99.ngrok-free.app'
+
 ALLOWED_HOSTS = [
     'noteslidebackend.onrender.com', 
     '104.224.12.0/24',
@@ -40,6 +40,20 @@ ALLOWED_HOSTS = [
     '103.207.43.0/24',
     'note-slide.com',
 ]
+
+# ALLOWED_HOSTS = [
+#     'noteslidebackend.onrender.com', 
+#     '104.224.12.0/24',
+#     '104.224.13.0/24',
+#     '104.224.14.0/24',
+#     '104.224.15.0/24',
+#     '103.207.40.0/24',
+#     '103.207.41.0/24',
+#     '103.207.42.0/24',
+#     '103.207.43.0/24',
+#     'note-slide.com',
+#     '127.0.0.1'
+# ]
 
 
 # Application definition
@@ -102,13 +116,21 @@ DATABASES = {
     }
 }
 
-# 'http://localhost:3000'
+
 CORS_ALLOWED_ORIGINS = [
     'https://noteslide.netlify.app',
     'https://note-slide.com',
     'http://note-slide.com',
     'https://service.prerender.io', 
 ]
+
+# CORS_ALLOWED_ORIGINS = [
+#     'https://noteslide.netlify.app',
+#     'https://note-slide.com',
+#     'http://note-slide.com',
+#     'https://service.prerender.io', 
+#     'http://localhost:3000'
+# ]
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
