@@ -76,7 +76,7 @@ def sign_up(request):
         if not name or not email or not password:
             return JsonResponse({'error': 'Missing required fields'}, status=400)
         
-        name = name.replace(" ", "")
+        name = "".join(name.split())
         email = email.strip()
         password = password.strip()
         
