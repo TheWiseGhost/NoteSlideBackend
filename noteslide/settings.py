@@ -121,6 +121,7 @@ CORS_ALLOWED_ORIGINS = [
     'https://noteslide.netlify.app',
     'https://note-slide.com',
     'http://note-slide.com',
+    'https://noteslide.vercel.app',
     'https://service.prerender.io', 
 ]
 
@@ -129,7 +130,8 @@ CORS_ALLOWED_ORIGINS = [
 #     'https://note-slide.com',
 #     'http://note-slide.com',
 #     'https://service.prerender.io', 
-#     'http://localhost:3000'
+#     'https://noteslide.vercel.app',
+#     'http://localhost:3000',
 # ]
 
 # Password validation
